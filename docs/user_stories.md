@@ -1,14 +1,12 @@
 # User Stories for MyProject
 
 
-- **CVATS-1**: As a **Job Seeker**, I want to **upload my CV in common formats like PDF and DOCX** so that **the analyzer can process my document and provide accurate feedback.** (Priority: High)
+- **1**: As a **Employee**, I want to **send and receive direct messages with other employees** so that **quickly communicate one-on-one for specific work-related queries or updates** (Priority: High)
 
-- **CVATS-2**: As a **Job Seeker**, I want to **paste or upload a job description** so that **the analyzer can compare my CV against the specific requirements of the role.** (Priority: High)
+- **2**: As a **Employee**, I want to **create and join group chats for specific projects or teams** so that **facilitate real-time collaboration and discussion among relevant team members** (Priority: High)
 
-- **CVATS-3**: As a **Job Seeker**, I want to **view a detailed report of keywords from the job description that are present or missing in my CV** so that **I can easily identify gaps and optimize my CV for specific roles.** (Priority: High)
+- **3**: As a **Employee**, I want to **share documents, images, and code snippets within chats** so that **easily exchange work-related files without switching to other platforms** (Priority: Medium)
 
-- **CVATS-4**: As a **Job Seeker**, I want to **receive a compatibility score for my CV against a specific job description** so that **I can quickly understand how well my CV aligns with the role and decide if further optimization is needed.** (Priority: Medium)
+- **4**: As a **Employee**, I want to **search for specific keywords within my chat history** so that **quickly find past discussions, decisions, or shared information** (Priority: Medium)
 
-- **CVATS-5**: As a **Job Seeker**, I want to **get feedback on common ATS-unfriendly formatting issues, such as complex tables or graphics** so that **I can ensure my CV is easily parseable by automated systems and doesn't get rejected for technical reasons.** (Priority: Medium)
-
-- **CVATS-6**: As a **Job Seeker**, I want to **receive actionable suggestions on how to improve my CV based on the analysis** so that **I can directly apply changes to increase my chances of passing ATS and securing an interview.** (Priority: Medium)
+- **5**: As a **Employee**, I want to **receive real-time notifications for new messages** so that **stay informed about important updates and respond promptly to colleagues** (Priority: High)

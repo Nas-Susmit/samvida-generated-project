@@ -1,8 +1,9 @@
-
-import React from "react";
-
 function App() {
-  return <div>Frontend running</div>;
+  return (
+    <div>
+      <h1>SAMVIDA App Running 🚀</h1>
+    </div>
+  );
 }
 
 export default App;
