@@ -1,23 +1,30 @@
-# Import required libraries
+# Import necessary libraries
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from fastapi.requests import Request
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
-from backend.database import engine
-from backend.models import User, Food
-from backend.routes import user_routes, food_routes
+from fastapi.middleware.cors import CORSMiddleware
+from routes import router
+from database import engine
 
-# Create FastAPI app
 app = FastAPI()
 
-# Include routes
-app.include_router(user_routes)
-app.include_router(food_routes)
+# Add CORS middleware
+cors_origins = [
+    "http://localhost:3000",
+    "http://localhost:8000"
+]
 
-# Define a route for the root of the API
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the API"}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# Include routes
+app.include_router(router)
+
+# Run the database migrations
+with engine.connect() as con:
+    con.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, password TEXT NOT NULL, daily_calorie_goals INTEGER NOT NULL)")
+    con.execute("CREATE TABLE IF NOT EXISTS food_intake (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, food_name TEXT NOT NULL, calories INTEGER NOT NULL, date DATE NOT NULL)")
+    con.execute("CREATE TABLE IF NOT EXISTS food_database (id INTEGER PRIMARY KEY, food_name TEXT NOT NULL, calories INTEGER NOT NULL)")
