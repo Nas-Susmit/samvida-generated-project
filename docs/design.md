@@ -1,10 +1,10 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'type': 'Microservices', 'layers': ['Presentation Layer', 'Application Layer', 'Business Logic Layer', 'Data Access Layer', 'Infrastructure Layer'], 'technologies': ['React', 'Node.js', 'Express', 'MongoDB', 'Docker', 'Kubernetes']}
+{'frontend': 'ReactJS', 'backend': 'NodeJS with Express', 'deployment': 'Docker containers on AWS'}
 
 ## Database Schema
-{'type': 'NoSQL', 'name': 'MongoDB', 'collections': [{'name': 'users', 'fields': ['id', 'username', 'password', 'email', 'daily_calorie_goals']}, {'name': 'foods', 'fields': ['id', 'name', 'calories', 'macronutrients']}, {'name': 'food_intake', 'fields': ['id', 'user_id', 'food_id', 'date', 'quantity']}, {'name': 'progress_reports', 'fields': ['id', 'user_id', 'date', 'total_calories', 'total_macronutrients']}]}
+{'type': 'Relational', 'schema': {'users': {'id': 'primary key', 'username': 'string', 'password': 'string', 'daily_calorie_goals': 'integer'}, 'food_intake': {'id': 'primary key', 'user_id': 'foreign key', 'food_name': 'string', 'calories': 'integer', 'date': 'date'}, 'food_database': {'id': 'primary key', 'food_name': 'string', 'calories': 'integer'}}}
 
 ## API Endpoints
 
@@ -21,14 +21,12 @@
 
 ## UI Components
 
-- login_page
-
-- register_page
-
-- dashboard
+- login_register
 
 - food_intake_form
 
 - progress_reports_chart
 
-- recipes_section
+- nutrition_advice_card
+
+- food_database_table
