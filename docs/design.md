@@ -1,10 +1,10 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'frontend': 'Client-side: React or Angular for building the UI', 'backend': 'Server-side: Node.js with Express.js for handling API requests', 'database': 'Relational database: MySQL or PostgreSQL for storing user data and to-do lists', 'storage': 'Cloud storage: AWS S3 or Google Cloud Storage for storing notes and files', 'authentication': 'OAuth 2.0 or JWT for secure user authentication', 'deployment': 'Cloud platform: AWS or Google Cloud for scalable and reliable deployment'}
+{'frontend': 'React.js', 'backend': 'Node.js with Express.js', 'database': 'MySQL', 'third_party_services': ['wearable device APIs']}
 
 ## Database Schema
-{'schema': {'users': {'id': 'primary key', 'username': 'string', 'email': 'string', 'password': 'string'}, 'to_do_lists': {'id': 'primary key', 'title': 'string', 'description': 'string', 'user_id': 'foreign key referencing users.id'}, 'tasks': {'id': 'primary key', 'title': 'string', 'description': 'string', 'due_date': 'date', 'completed': 'boolean', 'to_do_list_id': 'foreign key referencing to_do_lists.id'}, 'notes': {'id': 'primary key', 'title': 'string', 'content': 'string', 'user_id': 'foreign key referencing users.id'}, 'reminders': {'id': 'primary key', 'task_id': 'foreign key referencing tasks.id', 'reminder_date': 'date', 'notification_sent': 'boolean'}}}
+{'schema': {'users': {'id': 'int', 'email': 'varchar(255)', 'password': 'varchar(255)', 'daily_calorie_goal': 'int'}, 'food_intake': {'id': 'int', 'user_id': 'int', 'food_name': 'varchar(255)', 'calories': 'int', 'date': 'date'}, 'physical_activity': {'id': 'int', 'user_id': 'int', 'activity_name': 'varchar(255)', 'calories_burned': 'int', 'date': 'date'}, 'food_database': {'id': 'int', 'food_name': 'varchar(255)', 'calories': 'int'}}}
 
 ## API Endpoints
 
@@ -23,10 +23,14 @@
 
 - login_page
 
-- to_do_list_page
+- register_page
 
-- task_page
+- dashboard
 
-- note_page
+- food_intake_log
 
-- reminder_page
+- physical_activity_log
+
+- progress_reports
+
+- food_database_management
