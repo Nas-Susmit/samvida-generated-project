@@ -1,32 +1,32 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'frontend': 'ReactJS', 'backend': 'NodeJS with Express', 'deployment': 'Docker containers on AWS'}
+{'description': 'A client-server architecture with a modern web frontend, a RESTful API backend, and a relational database for persistence. Calculations are primarily handled client-side for responsiveness, with the option to offload complex or log all calculations via the backend API.', 'components': [{'name': 'Frontend (Client-side)', 'technology_stack': ['React (or Vue/Angular) for UI development', 'HTML5, CSS3 (e.g., Tailwind CSS, Styled Components)', 'JavaScript/TypeScript', 'Expression parsing library (e.g., math.js) for client-side evaluation', 'Webpack/Vite for bundling'], 'responsibilities': ['User Interface rendering and interactivity.', 'Capture user input (numbers, operators, functions).', 'Perform most mathematical calculations directly for instant feedback.', 'Manage application state (current expression, result, mode).', 'Communicate with the Backend API for logging or complex calculations.', 'Display calculation history (if implemented).']}, {'name': 'Backend (API Server)', 'technology_stack': ['Node.js with Express.js (or Python/Flask, Java/Spring Boot, Go/Gin)', 'RESTful API design', 'Middleware for logging, error handling', 'Optional: Expression parsing/evaluation library (e.g., math.js) for server-side validation or computation', 'PostgreSQL client/ORM (e.g., Sequelize, Prisma)'], 'responsibilities': ['Expose API endpoints for calculation processing and history.', 'Receive calculation requests from the frontend.', 'Validate input expressions.', 'Perform calculations (optional, can defer to frontend for most cases).', 'Persist calculation history to the database.', 'Retrieve calculation history.', 'Handle server-side logging and error reporting.']}, {'name': 'Database', 'technology_stack': ['PostgreSQL (or MySQL, MariaDB, SQLite for simpler deployments)'], 'responsibilities': ['Store calculation history (expressions, results, timestamps).', 'Provide data persistence and retrieval for the Backend API.']}, {'name': 'Deployment & Infrastructure', 'technology_stack': ['Docker (for containerization of Frontend and Backend)', 'Kubernetes (or AWS ECS/Azure AKS/GCP GKE for orchestration, scalability, high availability)', 'NGINX/Traefik (for reverse proxy and load balancing)', 'CI/CD Pipeline (e.g., GitHub Actions, GitLab CI/CD, Jenkins)'], 'responsibilities': ['Automate build, test, and deployment processes.', 'Ensure application scalability and reliability.', 'Provide secure and performant access to the application.']}]}
 
 ## Database Schema
-{'type': 'Relational', 'schema': {'users': {'id': 'primary key', 'username': 'string', 'password': 'string', 'daily_calorie_goals': 'integer'}, 'food_intake': {'id': 'primary key', 'user_id': 'foreign key', 'food_name': 'string', 'calories': 'integer', 'date': 'date'}, 'food_database': {'id': 'primary key', 'food_name': 'string', 'calories': 'integer'}}}
+{'type': 'Relational Database', 'system': 'PostgreSQL', 'schema': {'tables': [{'name': 'calculations', 'description': 'Stores a history of mathematical expressions and their results.', 'columns': [{'name': 'id', 'type': 'UUID', 'constraints': ['PRIMARY KEY', 'DEFAULT gen_random_uuid()'], 'description': 'Unique identifier for each calculation entry.'}, {'name': 'expression', 'type': 'TEXT', 'constraints': ['NOT NULL'], 'description': "The mathematical expression entered by the user (e.g., 'sin(45) * (2 + 3)')."}, {'name': 'result', 'type': 'TEXT', 'constraints': ['NOT NULL'], 'description': "The calculated result (stored as text to handle potential 'NaN', 'Infinity', or very large numbers)."}, {'name': 'unit_mode', 'type': 'VARCHAR(10)', 'constraints': ['NOT NULL', "DEFAULT 'degrees'"], 'description': "The unit mode used for trigonometric functions ('degrees' or 'radians')."}, {'name': 'timestamp', 'type': 'TIMESTAMP WITH TIME ZONE', 'constraints': ['NOT NULL', 'DEFAULT CURRENT_TIMESTAMP'], 'description': 'The date and time when the calculation was performed.'}, {'name': 'user_id', 'type': 'UUID', 'constraints': ['NULLABLE', 'FOREIGN KEY REFERENCES users(id) (if user auth implemented)'], 'description': 'Optional: Link to a user if user accounts are introduced.'}]}]}}
 
 ## API Endpoints
 
-- ** **: 
+- **POST /calculate**: Processes a mathematical expression, performs the calculation, and logs it.
 
-- ** **: 
+- **GET /history**: Retrieves the list of past calculations.
 
-- ** **: 
-
-- ** **: 
-
-- ** **: 
+- **GET /health**: Health check endpoint for monitoring.
 
 
 ## UI Components
 
-- login_register
+- {'id': 'UI-001', 'name': 'Calculator Display', 'description': 'Shows the current input expression and the calculated result.', 'elements': [{'name': 'Expression Input Area', 'purpose': 'Displays the full expression being built.', 'example': 'sin(45) * (2 + 3)'}, {'name': 'Result Output Area', 'purpose': 'Displays the final or intermediate calculation result.', 'example': '3.5355'}]}
 
-- food_intake_form
+- {'id': 'UI-002', 'name': 'Number Pad', 'description': 'Buttons for digits 0-9 and the decimal point.', 'elements': [{'name': 'Digit Buttons', 'purpose': 'Input numbers 0-9.'}, {'name': 'Decimal Point Button', 'purpose': "Input decimal separator '.'."}]}
 
-- progress_reports_chart
+- {'id': 'UI-003', 'name': 'Basic Operators', 'description': 'Buttons for fundamental arithmetic operations.', 'elements': [{'name': 'Addition Button', 'symbol': '+'}, {'name': 'Subtraction Button', 'symbol': '-'}, {'name': 'Multiplication Button', 'symbol': '*'}, {'name': 'Division Button', 'symbol': '/'}]}
 
-- nutrition_advice_card
+- {'id': 'UI-004', 'name': 'Parentheses Buttons', 'description': 'Buttons to group operations and control order of evaluation.', 'elements': [{'name': 'Open Parenthesis Button', 'symbol': '('}, {'name': 'Close Parenthesis Button', 'symbol': ')'}]}
 
-- food_database_table
+- {'id': 'UI-005', 'name': 'Scientific Functions', 'description': 'Buttons for advanced mathematical operations and constants.', 'elements': [{'name': 'Sine Function Button', 'symbol': 'sin'}, {'name': 'Cosine Function Button', 'symbol': 'cos'}, {'name': 'Tangent Function Button', 'symbol': 'tan'}, {'name': 'Square Root Button', 'symbol': '√ (sqrt)'}, {'name': 'Power Function Button', 'symbol': 'x^y (pow)'}, {'name': 'Pi Constant Button', 'symbol': 'π'}, {'name': "Euler's Number Button", 'symbol': 'e'}]}
+
+- {'id': 'UI-006', 'name': 'Control Buttons', 'description': 'Buttons for managing the calculator state and performing actions.', 'elements': [{'name': 'Clear Entry (CE) Button', 'purpose': 'Removes the last entered number or operation.'}, {'name': 'All Clear (AC) Button', 'purpose': 'Resets the entire calculation and display.'}, {'name': 'Equals Button', 'symbol': '=', 'purpose': 'Triggers the evaluation of the current expression.'}, {'name': 'Unit Toggle Button', 'purpose': "Switches between 'Degrees' and 'Radians' mode for trigonometric functions."}]}
+
+- {'id': 'UI-007', 'name': 'History Panel (Optional)', 'description': 'Displays a list of past calculations retrieved from the backend.', 'elements': [{'name': 'History List', 'purpose': 'Shows previous expressions and results.'}, {'name': 'Clear History Button', 'purpose': 'Removes all entries from the history (might require API endpoint).'}]}
