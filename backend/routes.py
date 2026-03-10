@@ -1,55 +1,76 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+# FastAPI Routes
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from models import User, FoodIntake, PhysicalActivity, FoodDatabase
+from database import get_db
 from typing import List
 
-from backend import models, schemas
-from backend.database import get_db
-
 router = APIRouter(
-    prefix="/items",
-    tags=["items"],
+    prefix="/api",
+    tags=["api"]
 )
 
-@router.post("/", response_model=schemas.Item, status_code=status.HTTP_201_CREATED)
-def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
-    db_item = models.Item(name=item.name, description=item.description)
-    db.add(db_item)
+class UserRequest(BaseModel):
+    email: str
+    password: str
+
+@router.post("/login")
+def login_user(user: UserRequest):
+    # Login logic here
+    pass
+
+@router.post("/register")
+def register_user(user: UserRequest):
+    # Register logic here
+    pass
+
+@router.get("/users")
+def get_users(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+    return users
+
+@router.get("/food_intake")
+def get_food_intake(db: Session = Depends(get_db)):
+    food_intake = db.query(FoodIntake).all()
+    return food_intake
+
+@router.post("/food_intake")
+def log_food_intake(food_intake: FoodIntake, db: Session = Depends(get_db)):
+    db.add(food_intake)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    return {"message": "Food intake logged successfully"}
 
-@router.get("/", response_model=List[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = db.query(models.Item).offset(skip).limit(limit).all()
-    return items
+@router.get("/physical_activity")
+def get_physical_activity(db: Session = Depends(get_db)):
+    physical_activity = db.query(PhysicalActivity).all()
+    return physical_activity
 
-@router.get("/{item_id}", response_model=schemas.Item)
-def read_item(item_id: int, db: Session = Depends(get_db)):
-    item = db.query(models.Item).filter(models.Item.id == item_id).first()
-    if item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
-
-@router.put("/{item_id}", response_model=schemas.Item)
-def update_item(item_id: int, item: schemas.ItemUpdate, db: Session = Depends(get_db)):
-    db_item = db.query(models.Item).filter(models.Item.id == item_id).first()
-    if db_item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    db_item.name = item.name
-    db_item.description = item.description
-    db_item.is_completed = item.is_completed
-
+@router.post("/physical_activity")
+def log_physical_activity(physical_activity: PhysicalActivity, db: Session = Depends(get_db)):
+    db.add(physical_activity)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    return {"message": "Physical activity logged successfully"}
 
-@router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_item(item_id: int, db: Session = Depends(get_db)):
-    db_item = db.query(models.Item).filter(models.Item.id == item_id).first()
-    if db_item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
+@router.get("/food_database")
+def get_food_database(db: Session = Depends(get_db)):
+    food_database = db.query(FoodDatabase).all()
+    return food_database
 
-    db.delete(db_item)
+@router.post("/food_database")
+def add_food_database(food_database: FoodDatabase, db: Session = Depends(get_db)):
+    db.add(food_database)
     db.commit()
-    return # FastAPI handles 204 No Content with no body
+    return {"message": "Food added to database successfully"}
+
+@router.put("/food_database/{id}")
+def update_food_database(id: int, food_database: FoodDatabase, db: Session = Depends(get_db)):
+    db.query(FoodDatabase).filter(FoodDatabase.id == id).update(food_database.dict())
+    db.commit()
+    return {"message": "Food updated in database successfully"}
+
+@router.delete("/food_database/{id}")
+def delete_food_database(id: int, db: Session = Depends(get_db)):
+    db.query(FoodDatabase).filter(FoodDatabase.id == id).delete()
+    db.commit()
+    return {"message": "Food deleted from database successfully"}
