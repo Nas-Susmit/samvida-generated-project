@@ -3,4 +3,4 @@
 | Test Suite | Passed | Failed | Coverage |
 |------------|--------|--------|----------|
 | Backend    | 1 | 0 |  |
-| Frontend   | 0 | 1 |  |
+| Frontend   | 1 | 0 |  |
