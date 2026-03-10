@@ -1,33 +1,26 @@
-# Import necessary libraries
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+import uuid
+from sqlalchemy import Column, String, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
-# Define the User model
-class User(Base):
-    __tablename__ = 'users'
+class Calculation(Base):
+    __tablename__ = "calculations"
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False)
-    password = Column(String, nullable=False)
-    daily_calorie_goals = Column(Integer, nullable=False)
+    # Using String for UUID in SQLite as it doesn't have a native UUID type.
+    # The default generates a new UUID string when a new record is created.
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    expression = Column(String, nullable=False, index=True)
+    result = Column(String, nullable=False)
+    # unit_mode is stored as a string, e.g., 'degrees' or 'radians'
+    unit_mode = Column(String(10), nullable=False, default="degrees")
+    # timestamp with timezone for better universal time representation.
+    # server_default=text("CURRENT_TIMESTAMP") uses the database's current timestamp function.
+    timestamp = Column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
-# Define the FoodIntake model
-class FoodIntake(Base):
-    __tablename__ = 'food_intake'
+    def __repr__(self):
+        return (
+            f"<Calculation(id='{self.id}', expression='{self.expression}', "
+            f"result='{self.result}', unit_mode='{self.unit_mode}', timestamp='{self.timestamp}')>"
+        )
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    food_name = Column(String, nullable=False)
-    calories = Column(Integer, nullable=False)
-    date = Column(Date, nullable=False)
-
-# Define the FoodDatabase model
-class FoodDatabase(Base):
-    __tablename__ = 'food_database'
-
-    id = Column(Integer, primary_key=True)
-    food_name = Column(String, nullable=False)
-    calories = Column(Integer, nullable=False)

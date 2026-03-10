@@ -1,107 +1,208 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
+import * as math from 'mathjs';
+import { getHistory, postCalculation } from './services/api';
 
-function App() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [dailyCalorieGoals, setDailyCalorieGoals] = useState('');
+const Calculator = () => {
+  const [expression, setExpression] = useState('');
+  const [result, setResult] = useState('0');
+  const [unitMode, setUnitMode] = useState('degrees'); // 'degrees' or 'radians'
+  const [history, setHistory] = useState([]);
+  const [error, setError] = useState('');
 
-  const [foodName, setFoodName] = useState('');
-  const [calories, setCalories] = useState('');
-  const [date, setDate] = useState('');
+  // Create a math.js instance that can be reconfigured based on unitMode
+  const [mathInstance, setMathInstance] = useState(() => math.create(math.all, { unit: 'degrees' }));
 
-  const [user, setUser] = useState({});
-  const [foodIntake, setFoodIntake] = useState([]);
-  const [foodDatabase, setFoodDatabase] = useState([]);
-
-  const createUser = async () => {
-    try {
-      const response = await axios.post('http://localhost:8000/users', {
-        username,
-        password,
-        dailyCalorieGoals
-      });
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getUserDetails = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8000/users/1`);
-      setUser(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const logFoodIntake = async () => {
-    try {
-      const response = await axios.post('http://localhost:8000/food-intake', {
-        user_id: 1,
-        food_name: foodName,
-        calories,
-        date
-      });
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getFoodIntakeHistory = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/food-intake/1');
-      setFoodIntake(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+  // Effect to reconfigure math.js instance when unitMode changes
   useEffect(() => {
-    getUserDetails();
-    getFoodIntakeHistory();
+    // math.js expects 'deg' or 'rad' for the unit property
+    const newUnitConfig = unitMode === 'degrees' ? 'deg' : 'rad';
+    setMathInstance(prev => { 
+      prev.config({ unit: newUnitConfig });
+      return prev; 
+    });
+  }, [unitMode]);
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      const response = await getHistory();
+      setHistory(response.data);
+    } catch (err) {
+      console.error('Failed to fetch history:', err);
+      setError('Failed to load history.');
+    }
   }, []);
 
-  return (
-    <div>
-      <h1>Frontend</h1>
-      <form>
-        <label>Username:</label>
-        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-        <br />
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <br />
-        <label>Daily Calorie Goals:</label>
-        <input type="number" value={dailyCalorieGoals} onChange={(e) => setDailyCalorieGoals(e.target.value)} />
-        <br />
-        <button type="button" onClick={createUser}>Create User</button>
-      </form>
-      <br />
-      <h2>Food Intake</h2>
-      <form>
-        <label>Food Name:</label>
-        <input type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} />
-        <br />
-        <label>Calories:</label>
-        <input type="number" value={calories} onChange={(e) => setCalories(e.target.value)} />
-        <br />
-        <label>Date:</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <br />
-        <button type="button" onClick={logFoodIntake}>Log Food Intake</button>
-      </form>
-      <br />
-      <h2>Food Intake History</h2>
-      <ul>
-        {foodIntake.map((food) => (
-          <li key={food.id}>{food.food_name} - {food.calories} calories - {food.date}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
-export default App;
+  const handleButtonClick = (value) => {
+    setError('');
+
+    // If a number is entered after a result (and no operator), start a new calculation
+    if (result !== '0' && expression === '' && !isNaN(parseFloat(value)) && isFinite(value)) {
+      setExpression(value);
+      setResult('0'); // Reset result when starting new expression
+      return;
+    }
+
+    // Handle operators after a previous result
+    if (['+', '-', '*', '/'].includes(value) && !expression && result !== '0') {
+      setExpression(result + value);
+      setResult('0'); // Clear result for new operation
+    } else if (value === '=' && expression === '' && result !== '0') {
+      // If '=' is pressed with a result but no new expression, do nothing or re-evaluate result
+      return; 
+    } else if (value === 'AC') {
+      handleClear();
+    } else if (value === 'CE') {
+      handleClearEntry();
+    } else if (value === '=') {
+      handleEquals();
+    } else if (value === 'toggleUnit') {
+      handleUnitToggle();
+    } else {
+      setExpression((prev) => prev + value);
+    }
+  };
+
+  const handleClear = () => {
+    setExpression('');
+    setResult('0');
+    setError('');
+  };
+
+  const handleClearEntry = () => {
+    setError('');
+    setExpression((prev) => prev.slice(0, -1));
+    if (expression.length === 1) {
+      setResult('0');
+    }
+  };
+
+  const handleEquals = async () => {
+    setError('');
+    if (!expression) {
+      if (result !== '0' && result !== 'Error') { // If there's a previous result but no new expression, effectively do nothing
+          return;
+      }
+      setResult('0'); // Reset if expression is empty and result is 0 or Error
+      return;
+    }
+
+    let calculatedResult = '';
+    try {
+      // Client-side calculation for immediate feedback and error handling
+      calculatedResult = mathInstance.evaluate(expression);
+      
+      // Format result: convert to integer if it's a whole number
+      let formattedResult = String(calculatedResult);
+      if (typeof calculatedResult === 'number' && calculatedResult % 1 === 0) {
+        formattedResult = String(parseInt(calculatedResult));
+      }
+      setResult(formattedResult);
+
+      // Post to backend for logging and persistence
+      const response = await postCalculation({
+        expression: expression,
+        unit_mode: unitMode,
+      });
+      // Add new calculation to history, keeping it limited (e.g., 100 items)
+      setHistory((prev) => [response.data, ...prev].slice(0, 100)); 
+
+    } catch (e) {
+      console.error('Calculation error:', e);
+      setResult('Error');
+      setError('Invalid expression');
+    }
+    setExpression(''); // Clear expression after evaluation
+  };
+
+  const handleUnitToggle = () => {
+    setUnitMode((prev) => (prev === 'degrees' ? 'radians' : 'degrees'));
+    setError('');
+  };
+
+  // Define calculator buttons and their properties
+  const buttons = [
+    { value: 'AC', className: 'clear', handler: () => handleButtonClick('AC') },
+    { value: 'CE', className: 'ce', handler: () => handleButtonClick('CE') },
+    { value: '(', className: 'function' },
+    { value: ')', className: 'function' },
+
+    { value: 'sin', className: 'function', handler: () => handleButtonClick('sin(') },
+    { value: 'cos', className: 'function', handler: () => handleButtonClick('cos(') },
+    { value: 'tan', className: 'function', handler: () => handleButtonClick('tan(') },
+    { value: '/', className: 'operator' },
+
+    { value: '7' },
+    { value: '8' },
+    { value: '9' },
+    { value: '*', className: 'operator' },
+
+    { value: '4' },
+    { value: '5' },
+    { value: '6' },
+    { value: '-', className: 'operator' },
+
+    { value: '1' },
+    { value: '2' },
+    { value: '3' },
+    { value: '+', className: 'operator' },
+
+    { value: 'e', className: 'function', handler: () => handleButtonClick('e') },
+    { value: '0' },
+    { value: '.', className: 'function' },
+    { value: '=', className: 'equals', handler: () => handleButtonClick('=') },
+
+    { value: 'pi', className: 'function', handler: () => handleButtonClick('pi') },
+    { value: 'sqrt', className: 'function', handler: () => handleButtonClick('sqrt(') },
+    { value: '^', className: 'function' },
+    { value: 'log', className: 'function', handler: () => handleButtonClick('log(') },
+  ];
+
+  return (
+    <>
+      <div className="calculator-container">
+        <div className="display">
+          <div className="expression-display">{expression || '0'}</div>
+          <div className="result-display" style={{ color: error ? 'red' : 'white' }}>{error || result}</div>
+        </div>
+        <div className="unit-toggle-container">
+          <button onClick={handleUnitToggle} className="unit-toggle-button" aria-label="Toggle unit mode">
+            Unit: {unitMode === 'degrees' ? 'Degrees' : 'Radians'}
+          </button>
+        </div>
+        <div className="buttons-grid">
+          {buttons.map((btn) => (
+            <button
+              key={btn.value}
+              className={`button ${btn.className || ''}`}
+              onClick={btn.handler || (() => handleButtonClick(btn.value))}
+              aria-label={btn.value === '=' ? 'Equals' : btn.value}
+            >
+              {btn.value === 'pi' ? '\u03c0' : btn.value === 'sqrt' ? '\u221a' : btn.value}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="history-panel">
+        <h2>Calculation History</h2>
+        <ul className="history-list">
+          {history.length > 0 ? (
+            history.map((item) => (
+              <li key={item.id} className="history-item">
+                <span className="history-item-expression">{item.expression}</span>
+                <span className="history-item-result">= {item.result}</span>
+              </li>
+            ))
+          ) : (
+            <li className="no-history">No history yet.</li>
+          )}
+        </ul>
+      </div>
+    </>
+  );
+};
+
+export default Calculator;
