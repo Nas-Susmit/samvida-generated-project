@@ -1,12 +1,14 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-FastAPI + React
+FastAPI backend with React frontend
 
 ## Database Schema
-SQLite with Users and Tasks
+SQLite
 
 ## API Endpoints
 
 
 ## UI Components
+
+- Dashboard
