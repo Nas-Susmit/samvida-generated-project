@@ -1,10 +1,10 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'frontend': 'React.js', 'backend': 'Node.js with Express.js', 'database': 'MySQL', 'third_party_services': ['wearable device APIs']}
+{'type': 'Microservices', 'layers': ['Presentation Layer', 'Application Layer', 'Business Logic Layer', 'Data Access Layer', 'Infrastructure Layer'], 'technologies': ['React', 'Node.js', 'Express', 'MongoDB', 'Docker', 'Kubernetes']}
 
 ## Database Schema
-{'schema': {'users': {'id': 'int', 'email': 'varchar(255)', 'password': 'varchar(255)', 'daily_calorie_goal': 'int'}, 'food_intake': {'id': 'int', 'user_id': 'int', 'food_name': 'varchar(255)', 'calories': 'int', 'date': 'date'}, 'physical_activity': {'id': 'int', 'user_id': 'int', 'activity_name': 'varchar(255)', 'calories_burned': 'int', 'date': 'date'}, 'food_database': {'id': 'int', 'food_name': 'varchar(255)', 'calories': 'int'}}}
+{'type': 'NoSQL', 'name': 'MongoDB', 'collections': [{'name': 'users', 'fields': ['id', 'username', 'password', 'email', 'daily_calorie_goals']}, {'name': 'foods', 'fields': ['id', 'name', 'calories', 'macronutrients']}, {'name': 'food_intake', 'fields': ['id', 'user_id', 'food_id', 'date', 'quantity']}, {'name': 'progress_reports', 'fields': ['id', 'user_id', 'date', 'total_calories', 'total_macronutrients']}]}
 
 ## API Endpoints
 
@@ -27,10 +27,8 @@
 
 - dashboard
 
-- food_intake_log
+- food_intake_form
 
-- physical_activity_log
+- progress_reports_chart
 
-- progress_reports
-
-- food_database_management
+- recipes_section
