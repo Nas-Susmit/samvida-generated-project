@@ -1,12 +1,14 @@
 # User Stories for MyProject
 
 
-- **US001**: As a **As a User**, I want to **I want to add a new task to my list** so that **so I can keep track of things I need to do** (Priority: High)
+- **1**: As a **User**, I want to **Create and manage to-do lists** so that **To stay organized and focused on tasks** (Priority: High)
 
-- **US002**: As a **As a User**, I want to **I want to see all my current tasks displayed** so that **so I know what I need to work on** (Priority: High)
+- **2**: As a **User**, I want to **Integrate to-do app with notes app** so that **To have all tasks and notes in one place** (Priority: Medium)
 
-- **US003**: As a **As a User**, I want to **I want to mark a task as completed** so that **so I can track my progress and remove it from my active list** (Priority: High)
+- **3**: As a **User**, I want to **Add reminders and notifications to to-do lists** so that **To never miss a deadline or task** (Priority: High)
 
-- **US004**: As a **As a User**, I want to **I want to delete a task from my list** so that **so I can remove items that are no longer relevant or were added by mistake** (Priority: Medium)
+- **4**: As a **User**, I want to **Share to-do lists with others** so that **To collaborate with team members or family** (Priority: Medium)
 
-- **US005**: As a **As a User**, I want to **I want to view tasks that I have already completed** so that **so I can review my accomplishments or reactivate them if needed** (Priority: Medium)
+- **5**: As a **User**, I want to **Customize to-do list views and filters** so that **To personalized the app to individual needs** (Priority: Low)
+
+- **6**: As a **User**, I want to **Access to-do app from multiple devices** so that **To have access to tasks from anywhere** (Priority: High)
