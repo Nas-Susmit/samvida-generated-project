@@ -1,36 +1,19 @@
-# SQLAlchemy Models
-from sqlalchemy import Column, Integer, String, Date
+# Import required libraries
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from backend.database import Base
 
-Base = declarative_base()
-
+# Define the User model
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
+    username = Column(String)
     email = Column(String)
-    password = Column(String)
-    daily_calorie_goal = Column(Integer)
+    daily_calorie_goals = Column(Integer)
 
-class FoodIntake(Base):
-    __tablename__ = 'food_intake'
+# Define the Food model
+class Food(Base):
+    __tablename__ = 'foods'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    food_name = Column(String)
-    calories = Column(Integer)
-    date = Column(Date)
-
-class PhysicalActivity(Base):
-    __tablename__ = 'physical_activity'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    activity_name = Column(String)
-    calories_burned = Column(Integer)
-    date = Column(Date)
-
-class FoodDatabase(Base):
-    __tablename__ = 'food_database'
-    id = Column(Integer, primary_key=True)
-    food_name = Column(String)
+    name = Column(String)
     calories = Column(Integer)

@@ -1,17 +1,16 @@
-# Database Connection
+# Import required libraries
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base
+from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine("sqlite:///backend/db.sqlite3")
+# Create a connection to the SQLite database
+engine = create_engine('sqlite:///database.db')
 
-Base.metadata.create_all(engine)
+# Create a base class for our models
+Base = declarative_base()
 
+# Create a session maker
 Session = sessionmaker(bind=engine)
 
-def get_db():
-    db = Session()
-    try:
-        yield db
-    finally:
-        db.close()
+# Create all tables
+Base.metadata.create_all(engine)

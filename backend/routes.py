@@ -1,76 +1,36 @@
-# FastAPI Routes
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from models import User, FoodIntake, PhysicalActivity, FoodDatabase
-from database import get_db
-from typing import List
+# Import required libraries
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from backend.models import User, Food
+from backend.database import Session
 
-router = APIRouter(
-    prefix="/api",
-    tags=["api"]
-)
+# Create API routers
+user_routes = APIRouter()
+food_routes = APIRouter()
 
-class UserRequest(BaseModel):
-    email: str
-    password: str
+# Define routes for users
+@user_routes.get("/users")
+async def get_users():
+    session = Session()
+    users = session.query(User).all()
+    return JSONResponse(content=[user.__dict__ for user in users])
 
-@router.post("/login")
-def login_user(user: UserRequest):
-    # Login logic here
-    pass
+@user_routes.get("/users/{user_id}")
+async def get_user(user_id: int):
+    session = Session()
+    user = session.query(User).filter_by(id=user_id).first()
+    return JSONResponse(content=user.__dict__)
 
-@router.post("/register")
-def register_user(user: UserRequest):
-    # Register logic here
-    pass
+# Define routes for foods
+@food_routes.get("/foods")
+async def get_foods():
+    session = Session()
+    foods = session.query(Food).all()
+    return JSONResponse(content=[food.__dict__ for food in foods])
 
-@router.get("/users")
-def get_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
-
-@router.get("/food_intake")
-def get_food_intake(db: Session = Depends(get_db)):
-    food_intake = db.query(FoodIntake).all()
-    return food_intake
-
-@router.post("/food_intake")
-def log_food_intake(food_intake: FoodIntake, db: Session = Depends(get_db)):
-    db.add(food_intake)
-    db.commit()
-    return {"message": "Food intake logged successfully"}
-
-@router.get("/physical_activity")
-def get_physical_activity(db: Session = Depends(get_db)):
-    physical_activity = db.query(PhysicalActivity).all()
-    return physical_activity
-
-@router.post("/physical_activity")
-def log_physical_activity(physical_activity: PhysicalActivity, db: Session = Depends(get_db)):
-    db.add(physical_activity)
-    db.commit()
-    return {"message": "Physical activity logged successfully"}
-
-@router.get("/food_database")
-def get_food_database(db: Session = Depends(get_db)):
-    food_database = db.query(FoodDatabase).all()
-    return food_database
-
-@router.post("/food_database")
-def add_food_database(food_database: FoodDatabase, db: Session = Depends(get_db)):
-    db.add(food_database)
-    db.commit()
-    return {"message": "Food added to database successfully"}
-
-@router.put("/food_database/{id}")
-def update_food_database(id: int, food_database: FoodDatabase, db: Session = Depends(get_db)):
-    db.query(FoodDatabase).filter(FoodDatabase.id == id).update(food_database.dict())
-    db.commit()
-    return {"message": "Food updated in database successfully"}
-
-@router.delete("/food_database/{id}")
-def delete_food_database(id: int, db: Session = Depends(get_db)):
-    db.query(FoodDatabase).filter(FoodDatabase.id == id).delete()
-    db.commit()
-    return {"message": "Food deleted from database successfully"}
+@food_routes.get("/foods/{food_id}")
+async def get_food(food_id: int):
+    session = Session()
+    food = session.query(Food).filter_by(id=food_id).first()
+    return JSONResponse(content=food.__dict__)
