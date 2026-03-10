@@ -2,5 +2,5 @@
 
 | Test Suite | Passed | Failed | Coverage |
 |------------|--------|--------|----------|
-| Backend    | 0 | 1 |  |
+| Backend    | 1 | 0 |  |
 | Frontend   | 0 | 1 |  |
