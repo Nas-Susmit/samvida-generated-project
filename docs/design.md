@@ -1,12 +1,18 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'backend': 'Node.js with Express.js', 'frontend': 'React.js', 'database': 'MongoDB'}
+{'frontend': 'React', 'backend': 'Node.js with Express.js', 'database': 'MySQL'}
 
 ## Database Schema
-{'collections': [{'name': 'calculations', 'fields': ['id', 'expression', 'result', 'timestamp']}, {'name': 'favorite_calculations', 'fields': ['id', 'expression', 'result', 'user_id']}, {'name': 'users', 'fields': ['id', 'username', 'password', 'role']}]}
+{'name': 'calorie_tracker', 'tables': [{'name': 'users', 'fields': ['id', 'username', 'password', 'email']}, {'name': 'food_items', 'fields': ['id', 'name', 'calories', 'protein', 'fat', 'carbohydrates']}, {'name': 'daily_intake', 'fields': ['id', 'user_id', 'date', 'food_item_id', 'quantity']}, {'name': 'meal_plans', 'fields': ['id', 'user_id', 'name', 'description']}, {'name': 'meal_plan_items', 'fields': ['id', 'meal_plan_id', 'food_item_id', 'quantity']}]}
 
 ## API Endpoints
+
+- ** **: 
+
+- ** **: 
+
+- ** **: 
 
 - ** **: 
 
@@ -15,10 +21,12 @@
 
 ## UI Components
 
-- calculator
+- user_profile
 
-- history
+- food_item_list
 
-- favorites
+- daily_intake_log
 
-- admin_panel
+- meal_plan_builder
+
+- progress_chart
