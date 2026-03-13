@@ -1,14 +1,14 @@
 # User Stories for MyProject
 
 
-- **1**: As a **Free-lancer**, I want to **Manage client contacts** so that **Easily access and organize client information** (Priority: High)
+- **FB-001**: As a **Player**, I want to **I can make the bird flap upwards and fall due to gravity when I press a key** so that **so I can control the bird's vertical movement and navigate obstacles.** (Priority: High)
 
-- **2**: As a **Social media creator**, I want to **Track engagement metrics** so that **Understand audience interaction and adjust content strategy** (Priority: Medium)
+- **FB-002**: As a **Player**, I want to **I can see pipes continuously scroll from right to left across the screen** so that **so there is an obstacle course for the bird to navigate and challenge my skills.** (Priority: High)
 
-- **3**: As a **User**, I want to **Create and edit profiles** so that **Establish a professional online presence** (Priority: High)
+- **FB-003**: As a **Player**, I want to **I can have the game end immediately when the bird collides with a pipe or the ground** so that **so there is a clear challenge and a consequence for mistakes.** (Priority: High)
 
-- **4**: As a **Admin**, I want to **Monitor user accounts and system performance** so that **Ensure smooth operation and secure user data** (Priority: High)
+- **FB-004**: As a **Player**, I want to **I can see my score increase by one each time the bird successfully passes between a pair of pipes** so that **so I can track my progress and aim for a high score.** (Priority: High)
 
-- **5**: As a **Free-lancer**, I want to **Generate invoices and track payments** so that **Streamline financial management and reduce administrative tasks** (Priority: Medium)
+- **FB-005**: As a **Player**, I want to **I can restart the game after it ends by pressing a key** so that **so I can try to beat my previous score without relaunching the entire application.** (Priority: High)
 
-- **6**: As a **Social media creator**, I want to **Schedule and publish content** so that **Save time and increase content consistency** (Priority: Low)
+- **FB-006**: As a **Player**, I want to **I can see a simple start screen with instructions and a 'Press to Start' prompt** so that **so I understand how to play the game before I begin and can start easily.** (Priority: Medium)
