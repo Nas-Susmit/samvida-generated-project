@@ -1,10 +1,6 @@
-# Import required libraries
+# API service definition
 import axios from 'axios';
-
-# Define the API service
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api/v1'
+  baseURL: 'http://localhost:8000'
 });
-
-# Export the API service
 export default api;
