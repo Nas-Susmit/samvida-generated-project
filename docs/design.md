@@ -1,38 +1,88 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'overview': 'A modern full-stack web application following a client-server architecture, designed for scalability, responsiveness, and maintainability. It utilizes a RESTful API for communication between the frontend and backend, and integrates with external services for comprehensive food data.', 'frontend': {'type': 'Single Page Application (SPA) / Progressive Web App (PWA)', 'frameworks': ['React', 'Angular', 'Vue.js'], 'styling': ['Tailwind CSS', 'Material-UI', 'Bootstrap'], 'bundler': 'Webpack / Vite', 'deployment': 'Static hosting (e.g., AWS S3 + CloudFront, Netlify, Vercel)', 'key_features': ['Responsive design for mobile, tablet, and desktop (User Story 5)', 'Client-side routing', 'State management', 'Optimistic UI updates for a smooth user experience']}, 'backend': {'type': 'RESTful API', 'frameworks': ['Node.js (Express/NestJS)', 'Python (Django/Flask)', 'Java (Spring Boot)', 'Go (Gin/Echo)'], 'language': 'Node.js (TypeScript) / Python / Java / Go', 'authentication': 'JWT (JSON Web Tokens) for stateless authentication, bcrypt for password hashing', 'authorization': "Role-Based Access Control (RBAC) - though only 'user' role is identified here, it's a good pattern", 'deployment': 'Containerized (Docker) on a cloud platform (e.g., AWS EC2/ECS/Lambda, Google Cloud Run/App Engine, Azure App Service)', 'key_features': ['Input validation and sanitization', 'Error handling and logging', 'Rate limiting', 'Data serialization and deserialization']}, 'database_layer': {'type': 'Relational Database Management System (RDBMS)', 'provider': ['PostgreSQL', 'MySQL'], 'hosting': 'Managed service (e.g., AWS RDS, Google Cloud SQL, Azure Database)', 'orm': ['Sequelize (Node.js)', 'TypeORM (Node.js/TypeScript)', 'SQLAlchemy (Python)', 'JPA/Hibernate (Java)']}, 'external_services': {'food_database_api': 'Third-party comprehensive food nutritional database (e.g., USDA FoodData Central API, Open Food Facts API, Edamam API)', 'email_service': 'For user registration verification, password resets (e.g., SendGrid, Mailgun)'}, 'infrastructure': {'hosting_provider': 'AWS / Google Cloud Platform / Azure', 'ci_cd': 'GitHub Actions / GitLab CI/CD / Jenkins', 'monitoring': 'Prometheus, Grafana, ELK Stack (Elasticsearch, Logstash, Kibana)'}}
+{'description': 'A modular fullstack system designed for scalability, maintainability, and security, leveraging a RESTful API backend and a responsive Single Page Application (SPA) frontend. Role-Based Access Control (RBAC) is implemented throughout.', 'components': [{'name': 'Frontend (Client-Side)', 'technology': 'React.js / Vue.js / Angular (SPA Framework)', 'purpose': 'Provides a rich, interactive user interface. Communicates with the Backend API via AJAX/Fetch requests. Handles UI rendering, user input, and client-side routing.', 'deployment': 'Static asset hosting (e.g., AWS S3 + CloudFront, Netlify, Vercel)'}, {'name': 'Backend API (Server-Side)', 'technology': 'Node.js (Express/NestJS) / Python (Django/Flask) / Go (Gin) / Java (Spring Boot)', 'purpose': 'A RESTful API that acts as the central point of communication. Handles business logic, authentication, authorization, data persistence, and integration with external services. Structured into logical modules (User, CRM, Social Media, Finance, Admin).', 'deployment': 'Containerized (Docker) and Orchestrated (Kubernetes) on Cloud VMs (AWS EC2, GCP Compute Engine, Azure VMs), behind a Load Balancer/API Gateway.', 'modules': ['Authentication & User Management', 'CRM (Client Management)', 'Social Media (Content & Metrics)', 'Finance (Invoicing & Payments)', 'Admin & Monitoring']}, {'name': 'Database', 'technology': 'PostgreSQL (Relational Database)', 'purpose': 'Stores all structured application data including users, profiles, clients, invoices, social media accounts, posts, and engagement metrics. Chosen for its reliability, ACID compliance, and robust support for complex queries and relationships.', 'deployment': 'Managed Database Service (e.g., AWS RDS PostgreSQL, GCP Cloud SQL for PostgreSQL, Azure Database for PostgreSQL)'}, {'name': 'Cache', 'technology': 'Redis', 'purpose': 'Used for session management, frequently accessed data (e.g., user profiles), rate limiting, and improving API response times.', 'deployment': 'Managed Cache Service (e.g., AWS ElastiCache for Redis, GCP Memorystore for Redis, Azure Cache for Redis)'}, {'name': 'Object Storage', 'technology': 'AWS S3 / Google Cloud Storage / Azure Blob Storage', 'purpose': 'Stores static and dynamic media files, such as user avatars, social media post images/videos, and invoice attachments. Provides high availability and scalability.', 'deployment': 'Cloud Object Storage Service'}, {'name': 'Message Queue / Background Jobs', 'technology': 'RabbitMQ / Apache Kafka / AWS SQS / Celery (Python)', 'purpose': 'Handles asynchronous tasks such as scheduling social media posts, processing payment notifications, sending emails, and collecting engagement metrics from external APIs. Decouples long-running processes from API requests.', 'deployment': 'Managed Queue Service (e.g., AWS SQS, Azure Service Bus) or self-hosted message broker'}, {'name': 'Monitoring & Logging', 'technology': 'Prometheus & Grafana / ELK Stack (Elasticsearch, Logstash, Kibana) / CloudWatch / Stackdriver', 'purpose': 'Collects system metrics, application logs, and traces to ensure system health, performance, and aid in debugging and security auditing.', 'deployment': 'Integrated cloud services or dedicated monitoring platform'}]}
 
 ## Database Schema
-{'type': 'PostgreSQL', 'schema': {'users': {'description': 'Stores user personal details and authentication information.', 'fields': [{'name': 'id', 'type': 'UUID / INT (PK)', 'constraints': ['NOT NULL']}, {'name': 'email', 'type': 'VARCHAR(255)', 'constraints': ['NOT NULL', 'UNIQUE']}, {'name': 'password_hash', 'type': 'VARCHAR(255)', 'constraints': ['NOT NULL']}, {'name': 'first_name', 'type': 'VARCHAR(100)'}, {'name': 'last_name', 'type': 'VARCHAR(100)'}, {'name': 'age', 'type': 'INT'}, {'name': 'current_weight_kg', 'type': 'DECIMAL(5,2)', 'description': 'Latest recorded weight, could be updated from weight_logs'}, {'name': 'height_cm', 'type': 'DECIMAL(5,2)'}, {'name': 'activity_level', 'type': "ENUM('sedentary', 'light', 'moderate', 'active', 'very_active')"}, {'name': 'desired_weight_kg', 'type': 'DECIMAL(5,2)'}, {'name': 'created_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP']}, {'name': 'updated_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']}]}, 'food_items': {'description': 'Cached or internal database of food items with nutritional info, potentially populated from external APIs. This minimizes repeated external API calls and allows for custom food items.', 'fields': [{'name': 'id', 'type': 'UUID / INT (PK)', 'constraints': ['NOT NULL']}, {'name': 'name', 'type': 'VARCHAR(255)', 'constraints': ['NOT NULL']}, {'name': 'brand', 'type': 'VARCHAR(255)', 'constraints': ['NULLABLE']}, {'name': 'calories_per_100g', 'type': 'DECIMAL(6,2)', 'description': 'Calories per 100g or 100ml'}, {'name': 'protein_g_per_100g', 'type': 'DECIMAL(6,2)'}, {'name': 'carbs_g_per_100g', 'type': 'DECIMAL(6,2)'}, {'name': 'fat_g_per_100g', 'type': 'DECIMAL(6,2)'}, {'name': 'serving_size_g', 'type': 'DECIMAL(6,2)', 'description': 'Standard serving size in grams, if applicable'}, {'name': 'serving_size_unit', 'type': 'VARCHAR(50)', 'description': "e.g., 'g', 'ml', 'unit', 'cup'"}, {'name': 'external_api_id', 'type': 'VARCHAR(255)', 'constraints': ['NULLABLE'], 'description': 'ID from the external food database API'}, {'name': 'is_custom', 'type': 'BOOLEAN', 'constraints': ['DEFAULT FALSE'], 'description': 'True if user-created'}, {'name': 'created_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP']}, {'name': 'updated_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']}]}, 'food_logs': {'description': 'Records individual food consumption for a user on a specific date.', 'fields': [{'name': 'id', 'type': 'UUID / INT (PK)', 'constraints': ['NOT NULL']}, {'name': 'user_id', 'type': 'UUID / INT (FK)', 'references': 'users(id)', 'constraints': ['NOT NULL']}, {'name': 'food_item_id', 'type': 'UUID / INT (FK)', 'references': 'food_items(id)', 'constraints': ['NOT NULL']}, {'name': 'quantity_consumed', 'type': 'DECIMAL(8,2)', 'constraints': ['NOT NULL'], 'description': 'Quantity consumed, e.g., 200 (grams), 1.5 (units)'}, {'name': 'unit_consumed', 'type': 'VARCHAR(50)', 'constraints': ['NOT NULL'], 'description': "Unit of quantity, e.g., 'g', 'ml', 'unit', 'serving'"}, {'name': 'log_date', 'type': 'DATE', 'constraints': ['NOT NULL']}, {'name': 'meal_type', 'type': "ENUM('breakfast', 'lunch', 'dinner', 'snack', 'other')", 'constraints': ['NOT NULL']}, {'name': 'created_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP']}, {'name': 'updated_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']}]}, 'weight_logs': {'description': "Tracks a user's weight over time to monitor progress.", 'fields': [{'name': 'id', 'type': 'UUID / INT (PK)', 'constraints': ['NOT NULL']}, {'name': 'user_id', 'type': 'UUID / INT (FK)', 'references': 'users(id)', 'constraints': ['NOT NULL']}, {'name': 'weight_kg', 'type': 'DECIMAL(5,2)', 'constraints': ['NOT NULL']}, {'name': 'log_date', 'type': 'DATE', 'constraints': ['NOT NULL']}, {'name': 'created_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP']}, {'name': 'updated_at', 'type': 'TIMESTAMP', 'constraints': ['DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']}]}}}
+{'type': 'Relational Database (PostgreSQL)', 'schema_overview': [{'table_name': 'users', 'description': 'Stores user authentication details and role.', 'fields': [{'name': 'id', 'type': 'UUID (PK)', 'description': 'Unique user identifier.'}, {'name': 'email', 'type': 'VARCHAR(255) (UNIQUE)', 'description': "User's email, used for login."}, {'name': 'password_hash', 'type': 'VARCHAR(255)', 'description': 'Hashed password.'}, {'name': 'role', 'type': "ENUM ('admin', 'freelancer', 'social_media_creator', 'user')", 'description': "User's role for RBAC."}, {'name': 'is_active', 'type': 'BOOLEAN', 'description': 'Account active status.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'profiles', 'description': 'Stores detailed public and private profile information for each user.', 'fields': [{'name': 'id', 'type': 'UUID (PK)', 'description': 'Unique profile identifier.'}, {'name': 'user_id', 'type': 'UUID (FK to users.id, UNIQUE)', 'description': 'Links to the associated user.'}, {'name': 'first_name', 'type': 'VARCHAR(100)'}, {'name': 'last_name', 'type': 'VARCHAR(100)'}, {'name': 'display_name', 'type': 'VARCHAR(200)', 'description': 'Publicly visible name.'}, {'name': 'bio', 'type': 'TEXT', 'description': 'Short biography.'}, {'name': 'avatar_url', 'type': 'VARCHAR(500)', 'description': "URL to user's profile picture in object storage."}, {'name': 'contact_info', 'type': 'JSONB', 'description': 'Flexible field for phone, social links, etc.'}, {'name': 'company_name', 'type': 'VARCHAR(255)', 'description': 'Optional, for freelancers.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'clients', 'description': 'Stores client contact information for freelancers.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'freelancer_id', 'type': 'UUID (FK to users.id)', 'description': 'Links to the freelancer who owns this client record.'}, {'name': 'name', 'type': 'VARCHAR(255)'}, {'name': 'email', 'type': 'VARCHAR(255)'}, {'name': 'phone', 'type': 'VARCHAR(50)'}, {'name': 'company_name', 'type': 'VARCHAR(255)'}, {'name': 'address', 'type': 'JSONB', 'description': 'Flexible field for address details.'}, {'name': 'notes', 'type': 'TEXT'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'invoices', 'description': 'Stores invoice details generated by freelancers.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'freelancer_id', 'type': 'UUID (FK to users.id)'}, {'name': 'client_id', 'type': 'UUID (FK to clients.id)'}, {'name': 'invoice_number', 'type': 'VARCHAR(50) (UNIQUE)'}, {'name': 'issue_date', 'type': 'DATE'}, {'name': 'due_date', 'type': 'DATE'}, {'name': 'total_amount', 'type': 'DECIMAL(10,2)'}, {'name': 'currency', 'type': 'VARCHAR(3)'}, {'name': 'status', 'type': "ENUM ('draft', 'sent', 'paid', 'overdue', 'cancelled')"}, {'name': 'payment_details', 'type': 'JSONB', 'description': 'Bank info, payment link etc.'}, {'name': 'notes', 'type': 'TEXT'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'social_media_accounts', 'description': 'Stores connected social media accounts for creators.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'creator_id', 'type': 'UUID (FK to users.id)', 'description': 'Links to the social media creator.'}, {'name': 'platform', 'type': "ENUM ('facebook', 'instagram', 'twitter', 'linkedin')", 'description': "e.g., 'facebook', 'instagram'."}, {'name': 'account_id_platform', 'type': 'VARCHAR(255)', 'description': 'ID from the social media platform.'}, {'name': 'access_token', 'type': 'TEXT (ENCRYPTED)', 'description': 'OAuth access token.'}, {'name': 'refresh_token', 'type': 'TEXT (ENCRYPTED)', 'description': 'OAuth refresh token (if applicable).'}, {'name': 'expires_at', 'type': 'TIMESTAMP'}, {'name': 'profile_url', 'type': 'VARCHAR(500)'}, {'name': 'account_name', 'type': 'VARCHAR(255)'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'posts', 'description': 'Stores scheduled and published social media content.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'account_id', 'type': 'UUID (FK to social_media_accounts.id)'}, {'name': 'content_text', 'type': 'TEXT'}, {'name': 'media_urls', 'type': 'TEXT[]', 'description': 'Array of URLs to images/videos in object storage.'}, {'name': 'scheduled_at', 'type': 'TIMESTAMP'}, {'name': 'published_at', 'type': 'TIMESTAMP'}, {'name': 'status', 'type': "ENUM ('draft', 'scheduled', 'publishing', 'published', 'failed')"}, {'name': 'platform_post_id', 'type': 'VARCHAR(255)', 'description': 'ID returned by social platform after publishing.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'engagement_metrics', 'description': 'Stores engagement metrics collected for social media posts.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'post_id', 'type': 'UUID (FK to posts.id)'}, {'name': 'metric_type', 'type': "ENUM ('likes', 'comments', 'shares', 'views', 'reach', 'impressions')", 'description': 'Type of metric.'}, {'name': 'value', 'type': 'INTEGER'}, {'name': 'recorded_at', 'type': 'TIMESTAMP', 'description': 'Timestamp when this metric was collected.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}]}]}
 
 ## API Endpoints
 
-- ** **: 
+- **POST **: Register a new user.
 
-- ** **: 
+- **POST **: Authenticate user and return JWT.
 
-- ** **: 
+- **POST **: Refresh access token.
 
-- ** **: 
+- **GET **: Retrieve current user's profile.
 
-- ** **: 
+- **PUT **: Update current user's profile.
 
-- ** **: 
+- **GET **: Get all clients for the freelancer.
 
-- ** **: 
+- **POST **: Create a new client contact.
+
+- **GET **: Get a specific client contact by ID.
+
+- **PUT **: Update an existing client contact.
+
+- **DELETE **: Delete a client contact.
+
+- **GET **: Get all invoices for the freelancer.
+
+- **POST **: Create a new invoice.
+
+- **GET **: Get a specific invoice by ID.
+
+- **PUT **: Update an existing invoice.
+
+- **DELETE **: Delete an invoice.
+
+- **POST **: Mark an invoice as paid.
+
+- **POST **: Send an invoice (e.g., email notification).
+
+- **GET **: Get connected social media accounts for the creator.
+
+- **POST **: Connect a new social media account (initiates OAuth flow).
+
+- **DELETE **: Disconnect a social media account.
+
+- **GET **: Get all posts (scheduled/published) for the creator.
+
+- **POST **: Create a new post draft.
+
+- **GET **: Get a specific post by ID.
+
+- **PUT **: Update an existing post.
+
+- **DELETE **: Delete a post.
+
+- **POST **: Schedule a post for future publication.
+
+- **POST **: Publish a post immediately.
+
+- **GET **: Get engagement metrics for a specific post.
+
+- **GET **: Get aggregated engagement metrics across all accounts.
+
+- **GET **: Get a list of all user accounts.
+
+- **GET **: Get details of any specific user.
+
+- **PUT **: Activate or deactivate a user account.
+
+- **GET **: Get system health and performance indicators.
 
 
 ## UI Components
 
-- general
+- global_components
 
-- authentication
+- user_profile_management
 
-- dashboard_and_logging
+- freelancer_dashboard_components
 
-- profile_and_settings
+- social_media_creator_dashboard_components
 
-- progress_and_reports
-
-- mobile_specific
+- admin_dashboard_components
