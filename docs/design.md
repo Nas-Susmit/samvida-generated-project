@@ -1,88 +1,32 @@
 # Design Document for MyProject
 
 ## Architecture Overview
-{'description': 'A modular fullstack system designed for scalability, maintainability, and security, leveraging a RESTful API backend and a responsive Single Page Application (SPA) frontend. Role-Based Access Control (RBAC) is implemented throughout.', 'components': [{'name': 'Frontend (Client-Side)', 'technology': 'React.js / Vue.js / Angular (SPA Framework)', 'purpose': 'Provides a rich, interactive user interface. Communicates with the Backend API via AJAX/Fetch requests. Handles UI rendering, user input, and client-side routing.', 'deployment': 'Static asset hosting (e.g., AWS S3 + CloudFront, Netlify, Vercel)'}, {'name': 'Backend API (Server-Side)', 'technology': 'Node.js (Express/NestJS) / Python (Django/Flask) / Go (Gin) / Java (Spring Boot)', 'purpose': 'A RESTful API that acts as the central point of communication. Handles business logic, authentication, authorization, data persistence, and integration with external services. Structured into logical modules (User, CRM, Social Media, Finance, Admin).', 'deployment': 'Containerized (Docker) and Orchestrated (Kubernetes) on Cloud VMs (AWS EC2, GCP Compute Engine, Azure VMs), behind a Load Balancer/API Gateway.', 'modules': ['Authentication & User Management', 'CRM (Client Management)', 'Social Media (Content & Metrics)', 'Finance (Invoicing & Payments)', 'Admin & Monitoring']}, {'name': 'Database', 'technology': 'PostgreSQL (Relational Database)', 'purpose': 'Stores all structured application data including users, profiles, clients, invoices, social media accounts, posts, and engagement metrics. Chosen for its reliability, ACID compliance, and robust support for complex queries and relationships.', 'deployment': 'Managed Database Service (e.g., AWS RDS PostgreSQL, GCP Cloud SQL for PostgreSQL, Azure Database for PostgreSQL)'}, {'name': 'Cache', 'technology': 'Redis', 'purpose': 'Used for session management, frequently accessed data (e.g., user profiles), rate limiting, and improving API response times.', 'deployment': 'Managed Cache Service (e.g., AWS ElastiCache for Redis, GCP Memorystore for Redis, Azure Cache for Redis)'}, {'name': 'Object Storage', 'technology': 'AWS S3 / Google Cloud Storage / Azure Blob Storage', 'purpose': 'Stores static and dynamic media files, such as user avatars, social media post images/videos, and invoice attachments. Provides high availability and scalability.', 'deployment': 'Cloud Object Storage Service'}, {'name': 'Message Queue / Background Jobs', 'technology': 'RabbitMQ / Apache Kafka / AWS SQS / Celery (Python)', 'purpose': 'Handles asynchronous tasks such as scheduling social media posts, processing payment notifications, sending emails, and collecting engagement metrics from external APIs. Decouples long-running processes from API requests.', 'deployment': 'Managed Queue Service (e.g., AWS SQS, Azure Service Bus) or self-hosted message broker'}, {'name': 'Monitoring & Logging', 'technology': 'Prometheus & Grafana / ELK Stack (Elasticsearch, Logstash, Kibana) / CloudWatch / Stackdriver', 'purpose': 'Collects system metrics, application logs, and traces to ensure system health, performance, and aid in debugging and security auditing.', 'deployment': 'Integrated cloud services or dedicated monitoring platform'}]}
+{'overview': 'A client-heavy architecture, where the core game logic runs entirely on the frontend using web technologies (HTML5 Canvas and JavaScript). A lightweight backend API is used to manage persistent high scores.', 'components': [{'name': 'Frontend (Client-side Game Application)', 'description': 'This is the primary application where the game is played. It handles all game logic, rendering, user input, and local state management. It communicates with the Backend API for high score features.', 'technologies': ['HTML5 (for Canvas and overall page structure)', 'CSS3 (for styling non-game elements and basic layout)', 'JavaScript (ES6+) for game logic, physics, rendering, input handling, and API interactions', 'Potential Libraries/Frameworks: Phaser.js or Pixi.js (for streamlined game development), or a custom implementation using Canvas API.'], 'responsibilities': ["FB-001: Implement bird's physics (flap, gravity, velocity, position updates).", 'FB-002: Generate, manage, and render scrolling pipes and background elements.', 'FB-003: Perform collision detection between the bird and pipes/ground, triggering game-over state.', "FB-004: Track and display the player's current score in real-time.", 'FB-005: Manage game state transitions (start, playing, game over) and handle restart logic.', 'FB-006: Render the start screen with instructions and prompts.', "Send player's score to the Backend API upon game over.", 'Fetch top high scores from the Backend API for display.']}, {'name': 'Backend (High Score API)', 'description': 'A RESTful API responsible for persistent storage and retrieval of player high scores. This ensures high scores are saved across game sessions and users.', 'technologies': ['Node.js (runtime environment)', 'Express.js (web framework for building the API)', 'Optional: Docker (for containerization and easier deployment)', 'Optional: Nginx (as a reverse proxy for production deployments)'], 'responsibilities': ['Receive and validate new score submissions from the frontend.', 'Store high scores securely in the database.', 'Retrieve and sort high scores for leaderboards/display.', 'Handle basic API authentication/rate limiting (optional, for production).']}, {'name': 'Database', 'description': 'A data store for persisting high score records, allowing for leaderboards and tracking player achievements.', 'technologies': ['MongoDB (NoSQL document database, chosen for its flexibility and ease of use with score data)', 'Alternative: PostgreSQL (relational database, robust for potential future features like user accounts, but might be overkill for just scores).'], 'responsibilities': ['Store individual player high score entries.', 'Support efficient querying and sorting of scores (e.g., retrieving the top 10 scores).']}]}
 
 ## Database Schema
-{'type': 'Relational Database (PostgreSQL)', 'schema_overview': [{'table_name': 'users', 'description': 'Stores user authentication details and role.', 'fields': [{'name': 'id', 'type': 'UUID (PK)', 'description': 'Unique user identifier.'}, {'name': 'email', 'type': 'VARCHAR(255) (UNIQUE)', 'description': "User's email, used for login."}, {'name': 'password_hash', 'type': 'VARCHAR(255)', 'description': 'Hashed password.'}, {'name': 'role', 'type': "ENUM ('admin', 'freelancer', 'social_media_creator', 'user')", 'description': "User's role for RBAC."}, {'name': 'is_active', 'type': 'BOOLEAN', 'description': 'Account active status.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'profiles', 'description': 'Stores detailed public and private profile information for each user.', 'fields': [{'name': 'id', 'type': 'UUID (PK)', 'description': 'Unique profile identifier.'}, {'name': 'user_id', 'type': 'UUID (FK to users.id, UNIQUE)', 'description': 'Links to the associated user.'}, {'name': 'first_name', 'type': 'VARCHAR(100)'}, {'name': 'last_name', 'type': 'VARCHAR(100)'}, {'name': 'display_name', 'type': 'VARCHAR(200)', 'description': 'Publicly visible name.'}, {'name': 'bio', 'type': 'TEXT', 'description': 'Short biography.'}, {'name': 'avatar_url', 'type': 'VARCHAR(500)', 'description': "URL to user's profile picture in object storage."}, {'name': 'contact_info', 'type': 'JSONB', 'description': 'Flexible field for phone, social links, etc.'}, {'name': 'company_name', 'type': 'VARCHAR(255)', 'description': 'Optional, for freelancers.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'clients', 'description': 'Stores client contact information for freelancers.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'freelancer_id', 'type': 'UUID (FK to users.id)', 'description': 'Links to the freelancer who owns this client record.'}, {'name': 'name', 'type': 'VARCHAR(255)'}, {'name': 'email', 'type': 'VARCHAR(255)'}, {'name': 'phone', 'type': 'VARCHAR(50)'}, {'name': 'company_name', 'type': 'VARCHAR(255)'}, {'name': 'address', 'type': 'JSONB', 'description': 'Flexible field for address details.'}, {'name': 'notes', 'type': 'TEXT'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'invoices', 'description': 'Stores invoice details generated by freelancers.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'freelancer_id', 'type': 'UUID (FK to users.id)'}, {'name': 'client_id', 'type': 'UUID (FK to clients.id)'}, {'name': 'invoice_number', 'type': 'VARCHAR(50) (UNIQUE)'}, {'name': 'issue_date', 'type': 'DATE'}, {'name': 'due_date', 'type': 'DATE'}, {'name': 'total_amount', 'type': 'DECIMAL(10,2)'}, {'name': 'currency', 'type': 'VARCHAR(3)'}, {'name': 'status', 'type': "ENUM ('draft', 'sent', 'paid', 'overdue', 'cancelled')"}, {'name': 'payment_details', 'type': 'JSONB', 'description': 'Bank info, payment link etc.'}, {'name': 'notes', 'type': 'TEXT'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'social_media_accounts', 'description': 'Stores connected social media accounts for creators.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'creator_id', 'type': 'UUID (FK to users.id)', 'description': 'Links to the social media creator.'}, {'name': 'platform', 'type': "ENUM ('facebook', 'instagram', 'twitter', 'linkedin')", 'description': "e.g., 'facebook', 'instagram'."}, {'name': 'account_id_platform', 'type': 'VARCHAR(255)', 'description': 'ID from the social media platform.'}, {'name': 'access_token', 'type': 'TEXT (ENCRYPTED)', 'description': 'OAuth access token.'}, {'name': 'refresh_token', 'type': 'TEXT (ENCRYPTED)', 'description': 'OAuth refresh token (if applicable).'}, {'name': 'expires_at', 'type': 'TIMESTAMP'}, {'name': 'profile_url', 'type': 'VARCHAR(500)'}, {'name': 'account_name', 'type': 'VARCHAR(255)'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'posts', 'description': 'Stores scheduled and published social media content.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'account_id', 'type': 'UUID (FK to social_media_accounts.id)'}, {'name': 'content_text', 'type': 'TEXT'}, {'name': 'media_urls', 'type': 'TEXT[]', 'description': 'Array of URLs to images/videos in object storage.'}, {'name': 'scheduled_at', 'type': 'TIMESTAMP'}, {'name': 'published_at', 'type': 'TIMESTAMP'}, {'name': 'status', 'type': "ENUM ('draft', 'scheduled', 'publishing', 'published', 'failed')"}, {'name': 'platform_post_id', 'type': 'VARCHAR(255)', 'description': 'ID returned by social platform after publishing.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}, {'name': 'updated_at', 'type': 'TIMESTAMP'}]}, {'table_name': 'engagement_metrics', 'description': 'Stores engagement metrics collected for social media posts.', 'fields': [{'name': 'id', 'type': 'UUID (PK)'}, {'name': 'post_id', 'type': 'UUID (FK to posts.id)'}, {'name': 'metric_type', 'type': "ENUM ('likes', 'comments', 'shares', 'views', 'reach', 'impressions')", 'description': 'Type of metric.'}, {'name': 'value', 'type': 'INTEGER'}, {'name': 'recorded_at', 'type': 'TIMESTAMP', 'description': 'Timestamp when this metric was collected.'}, {'name': 'created_at', 'type': 'TIMESTAMP'}]}]}
+{'name': 'MongoDB', 'purpose': 'To persistently store player high scores and related metadata, enabling a global leaderboard.', 'collections': [{'name': 'high_scores', 'description': 'Stores individual high score entries submitted by players.', 'schema': {'id': 'ObjectId (unique identifier generated by MongoDB)', 'playerName': "String (e.g., 'Guest' if not provided, or a user-entered name)", 'score': "Number (integer, representing the player's score)", 'timestamp': 'Date (ISO 8601 format, records when the score was achieved)'}, 'indexes': [{'field': 'score', 'order': -1, 'description': 'Index for fast retrieval of highest scores.'}, {'field': 'timestamp', 'order': -1, 'description': 'Index for retrieving recent scores.'}], 'example_data': [{'_id': '654e5b7a1d7f8c9b0e1a2b3c', 'playerName': 'FlappyMaster', 'score': 250, 'timestamp': '2023-10-27T10:00:00.000Z'}, {'_id': '654e5b7a1d7f8c9b0e1a2b3d', 'playerName': 'Guest', 'score': 180, 'timestamp': '2023-10-27T10:05:30.000Z'}, {'_id': '654e5b7a1d7f8c9b0e1a2b3e', 'playerName': 'ProFlapper', 'score': 300, 'timestamp': '2023-10-27T10:15:15.000Z'}]}]}
 
 ## API Endpoints
 
-- **POST **: Register a new user.
+- **POST **: Allows the frontend to submit a new player score to the backend when a game ends. This updates the global leaderboard.
 
-- **POST **: Authenticate user and return JWT.
-
-- **POST **: Refresh access token.
-
-- **GET **: Retrieve current user's profile.
-
-- **PUT **: Update current user's profile.
-
-- **GET **: Get all clients for the freelancer.
-
-- **POST **: Create a new client contact.
-
-- **GET **: Get a specific client contact by ID.
-
-- **PUT **: Update an existing client contact.
-
-- **DELETE **: Delete a client contact.
-
-- **GET **: Get all invoices for the freelancer.
-
-- **POST **: Create a new invoice.
-
-- **GET **: Get a specific invoice by ID.
-
-- **PUT **: Update an existing invoice.
-
-- **DELETE **: Delete an invoice.
-
-- **POST **: Mark an invoice as paid.
-
-- **POST **: Send an invoice (e.g., email notification).
-
-- **GET **: Get connected social media accounts for the creator.
-
-- **POST **: Connect a new social media account (initiates OAuth flow).
-
-- **DELETE **: Disconnect a social media account.
-
-- **GET **: Get all posts (scheduled/published) for the creator.
-
-- **POST **: Create a new post draft.
-
-- **GET **: Get a specific post by ID.
-
-- **PUT **: Update an existing post.
-
-- **DELETE **: Delete a post.
-
-- **POST **: Schedule a post for future publication.
-
-- **POST **: Publish a post immediately.
-
-- **GET **: Get engagement metrics for a specific post.
-
-- **GET **: Get aggregated engagement metrics across all accounts.
-
-- **GET **: Get a list of all user accounts.
-
-- **GET **: Get details of any specific user.
-
-- **PUT **: Activate or deactivate a user account.
-
-- **GET **: Get system health and performance indicators.
+- **GET **: Retrieves a list of the top N high scores, ordered from highest to lowest. Used to display leaderboards or the current highest score.
 
 
 ## UI Components
 
-- global_components
+- {'name': 'Game Canvas', 'description': 'The primary HTML5 Canvas element where all game visual elements (bird, pipes, background, score) are drawn and updated.', 'related_user_stories': ['FB-001', 'FB-002', 'FB-003', 'FB-004']}
 
-- user_profile_management
+- {'name': 'Bird Sprite/Graphic', 'description': "The visual representation of the player's bird, rendered with its current position, rotation, and animation state (e.g., flapping wings).", 'states': ['Flapping (moving upwards)', 'Falling (moving downwards)', 'Collided (visual feedback upon collision)'], 'related_user_stories': ['FB-001', 'FB-003']}
 
-- freelancer_dashboard_components
+- {'name': 'Pipe Obstacles', 'description': 'Visual representations of the green pipes, typically rendered as pairs (top and bottom) with a gap in between. They scroll horizontally across the canvas.', 'states': ['Scrolling (moving from right to left)', 'Passed (after the bird successfully flies through the gap)'], 'related_user_stories': ['FB-002', 'FB-003', 'FB-004']}
 
-- social_media_creator_dashboard_components
+- {'name': 'Ground Element', 'description': 'The visual representation of the ground at the bottom of the screen. It can be static or appear to scroll to match the background/pipes.', 'related_user_stories': ['FB-003']}
 
-- admin_dashboard_components
+- {'name': 'Scrolling Background', 'description': 'Background imagery (e.g., sky, clouds) that scrolls to create a sense of continuous movement.', 'related_user_stories': ['FB-002']}
+
+- {'name': 'Current Score Display', 'description': "A text overlay, typically in the top-center of the canvas, showing the player's score in real-time during gameplay.", 'related_user_stories': ['FB-004']}
+
+- {'name': 'Start Screen UI', 'description': 'The initial user interface displayed when the game loads, before gameplay begins.', 'elements': [{'name': 'Game Title/Logo', 'purpose': "Visually identifies the game (e.g., 'Flappy Bird')."}, {'name': 'Instructions Text', 'purpose': "Provides brief guidance on how to play (e.g., 'Press SPACE to flap')."}, {'name': 'Start Prompt', 'purpose': "Instructs the player how to initiate the game (e.g., 'Press SPACE to Start')."}, {'name': 'High Score Display (Optional)', 'purpose': 'Shows the current highest score fetched from the Backend API.'}], 'related_user_stories': ['FB-006']}
+
+- {'name': 'Game Over Screen UI', 'description': 'The user interface displayed immediately after a collision, indicating the game has ended.', 'elements': [{'name': 'Game Over Message', 'purpose': "A prominent message like 'Game Over!'."}, {'name': 'Final Score Display', 'purpose': "Shows the score achieved in the just-completed game ('Score: X')."}, {'name': 'Session/Overall High Score Display', 'purpose': 'Shows the highest score achieved in this session or overall (fetched from backend).'}, {'name': 'Restart Prompt', 'purpose': "Instructs the player how to restart the game (e.g., 'Press SPACE to Restart')."}, {'name': 'Name Input Field (Optional)', 'purpose': 'Allows player to enter a name to associate with their high score before submission.'}], 'related_user_stories': ['FB-003', 'FB-005', 'FB-004']}
