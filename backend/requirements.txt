@@ -1,4 +1,2 @@
-# Python dependencies
 fastapi
 sqlalchemy
-uvicorn
