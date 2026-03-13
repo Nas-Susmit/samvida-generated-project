@@ -1,14 +1,12 @@
 # User Stories for MyProject
 
 
-- **1**: As a **User**, I want to **Enter daily food intake** so that **To track and calculate total calories consumed** (Priority: High)
+- **1**: As a **As a user**, I want to **I want to be able to log the food items I eat throughout the day, specifying quantities** so that **so that I can accurately track my daily calorie intake.** (Priority: High)
 
-- **2**: As a **User**, I want to **Set daily calorie goals** so that **To receive personalized recommendations for calorie intake** (Priority: Medium)
+- **2**: As a **As a user**, I want to **I want to input my personal details (age, weight, height, activity level) and a desired weight goal** so that **so that the system can calculate and display a personalized daily calorie target for me.** (Priority: High)
 
-- **3**: As a **User**, I want to **Select food items from a database** so that **To easily find and add calories for common food items** (Priority: High)
+- **3**: As a **As a user**, I want to **I want to search for food items from a comprehensive database** so that **so that I can quickly add them to my log without manually entering all nutritional information.** (Priority: Medium)
 
-- **4**: As a **User**, I want to **View progress and calorie balance** so that **To monitor and adjust daily food intake for optimal health** (Priority: Medium)
+- **4**: As a **As a user**, I want to **I want to view a summary of my calorie intake over past days and weeks, along with my progress towards my weight goals** so that **so that I can monitor my long-term eating habits and stay motivated.** (Priority: Medium)
 
-- **5**: As a **Admin**, I want to **Update food database with new items** so that **To ensure the calculator remains accurate and relevant** (Priority: Low)
-
-- **6**: As a **User**, I want to **Save and retrieve meal plans** so that **To plan and track meals in advance for better calorie management** (Priority: Medium)
+- **5**: As a **As a user**, I want to **I want to use the calorie calculator seamlessly on my mobile phone, tablet, or desktop computer** so that **so that I always have an optimal and consistent experience, regardless of the device I'm using.** (Priority: Medium)
